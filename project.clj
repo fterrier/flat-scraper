@@ -7,4 +7,6 @@
                  [enlive "1.1.6"]
                  [http-kit "2.2.0"]
                  [com.cemerick/url "0.1.1"]
-                 [cheshire "5.7.0"]])
+                 [cheshire "5.7.0"]
+                 [com.taoensso/carmine "2.15.1"]
+                 [clj-time "0.13.0"]])
