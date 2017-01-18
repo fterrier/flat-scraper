@@ -1,4 +1,4 @@
-(ns flat-scraper.scraper.zoopla
+(ns flat-scraper.scraper.providers.zoopla
   (:require [clojure.string :as str]
             [net.cgrand.enlive-html :as html]
             [org.httpkit.client :as http]))
@@ -28,15 +28,17 @@
       (str/trim)))
 
 (defn- parse-price [price-str]
-  (let [matcher (re-matcher #"£([\d,]+) pcm\s+\(£(\d+) pw\)" price-str)
+  (let [matcher (re-matcher #"£([\d,]+) p+cm\s+\(£(\d+) p+w\)" price-str)
         [_ pcm pw] (re-find matcher)
-        remove-comma (fn [str] (str/replace str "," ""))]
+        remove-comma (fn [str] (when str (str/replace str "," "")))]
     {:text price-str
-     :weekly (-> pw remove-comma to-int)
-     :monthly (-> pcm remove-comma to-int)}))
+     :weekly {:price (-> pw remove-comma to-int)
+              :per-person (str/includes? price-str "pppw")}
+     :monthly {:price (-> pcm remove-comma to-int)}}))
 
 (comment
-  (parse-price "£1,700 pcm  (£162 pw)"))
+  (parse-price "£1,700 pcm  (£162 pw)")
+  (parse-price "£1,300 pcm  (£150 pppw)"))
 
 (defn- relevant-infos [node]
   (let [id (first (html/attr-values (first (html/select [node] *image-selector*)) :data-ajax))
