@@ -1,4 +1,4 @@
-(ns flat-scraper.db.datastore
+(ns db.datastore
   (:require [taoensso.carmine :as car :refer (wcar)]))
 
 (defn create-db [config]

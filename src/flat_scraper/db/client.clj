@@ -1,7 +1,6 @@
 (ns flat-scraper.db.client
-  (:require [flat-scraper.db.datastore :as datastore]
-            [clj-time.coerce :as c]))
-
+  (:require [clj-time.coerce :as c]
+            [db.datastore :as datastore]))
 
 (defn- serialize-listings [listings]
   (pr-str (map #(assoc % :date-scraped (c/to-long (:date-scraped %))) 
@@ -22,5 +21,5 @@
                    (serialize-listings listings)))
 
 (comment 
-  (save-listings (flat-scraper.db.datastore/create-db {}) :test [{:id 123 :date-scraped (clj-time.core/now)}])
-  (retrieve-listings (flat-scraper.db.datastore/create-db {}) :test))
+  (save-listings (db.datastore/create-db {}) :test [{:id 123 :date-scraped (clj-time.core/now)}])
+  (retrieve-listings (db.datastore/create-db {}) :test))
