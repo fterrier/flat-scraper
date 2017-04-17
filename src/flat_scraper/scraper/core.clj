@@ -1,37 +1,34 @@
 (ns flat-scraper.scraper.core
   (:require [clj-time.core :as t]
-            [flat-scraper.db.client :as client]
+            [flat-scraper.db.listings :as client]
             [flat-scraper.google.distance :as google-distance]
             [flat-scraper.scraper.providers.zoopla :as zoopla]))
-
-(defn- merge-duration [listing] 
-  (let [{:keys [result]} @(google-distance/retrieve-duration "AIzaSyCCt4snXtT3ncLGvg9e-MNwNtPoJguNY_g" (:address listing) "103 Wigmore Street, London")]
-    (merge listing result)))
-
-(defn- merge-listings 
-  "Merges a new listing vector with an existing one, 
-  conserving the order of both lists."
-  [existing new]
-  (let [new-ids (into #{} (map :id new))
-        existing-without-new (remove #(contains? new-ids (:id %)) existing)]
-    (concat new existing-without-new)))
 
 (defn- add-date [listing date]
   (assoc listing :date-scraped date))
 
-(defn get-zoopla-fresh-listings-and-save [db]
-  (let [now (t/now)
-        new-listings (->> (zoopla/get-zoopla-listings)
-                          (map #(add-date % now)))
-        existing-listings (client/retrieve-listings db :zoopla)
-        listings-to-save (take 100 (merge-listings existing-listings new-listings))]
-    (client/save-listings db :zoopla listings-to-save)))
+(defn- get-provider [providers url]
+  ;; TODO finish implementing
+  {:provider :zoopla
+   :scrape-fn zoopla/get-zoopla-listings})
+
+(defn scrape 
+  "Given a list of providers and a url, scrapes the url and return a list of 
+  listings and the given provider or an error"
+  [providers date url]
+  (let [{:keys [provider scrape-fn]} (get-provider providers url)
+        listings (->> url
+                      (zoopla/get-zoopla-listings)
+                      (map #(add-date % date)))]
+    ;; TODO error case
+    [{:provider provider
+      :listings listings} nil]))
 
 (comment
-  (get-zoopla-fresh-listings-and-save 
-   (flat-scraper.db.datastore/create-db {})))
+  (scrape [] (t/now)
+   "http://www.zoopla.co.uk/to-rent/property/london/islington/?beds_min=1&include_shared_accommodation=false&price_frequency=per_month&price_max=1750&q=Islington%2C%20London&radius=3&search_source=refine&page_size=25&pn=1&view_type=list"))
 
-(comment
-  (get-listings-with-duration))
+;; (comment
+;;   (get-listings-with-duration))
 
 ;(retrieve-duration "AIzaSyCCt4snXtT3ncLGvg9e-MNwNtPoJguNY_g" "Bethnal Green Road, London E2" "103 Wigmore Street, London")

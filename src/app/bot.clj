@@ -38,7 +38,8 @@
                      :handle-fn (create-watch-command db)}]
         bot        (bot/create-bot commands)]
     (fn [data client]
-      (bot data (partial send-to-user get-channel-fn client)))))
+      (bot (assoc data :client client)
+           (partial send-to-user get-channel-fn client)))))
 
 (defstate bot 
   :start (start-bot nil

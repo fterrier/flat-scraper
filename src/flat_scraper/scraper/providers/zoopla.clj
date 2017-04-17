@@ -3,9 +3,9 @@
             [net.cgrand.enlive-html :as html]
             [org.httpkit.client :as http]))
 
-(defn- get-dom []
+(defn- get-dom [url]
   (html/html-snippet
-   (:body @(http/get "http://www.zoopla.co.uk/to-rent/property/london/islington/?beds_min=1&include_shared_accommodation=false&price_frequency=per_month&price_max=1750&q=Islington%2C%20London&radius=3&search_source=refine&page_size=25&pn=1&view_type=list" {:insecure? true}))))
+   (:body @(http/get url {:insecure? true}))))
  
 (defn- extract-results [dom]
   (html/select dom [:.listing-results-wrapper]))
@@ -52,10 +52,11 @@
         result [(to-int id) (parse-price (clean-str price)) (clean-str address) (clean-str title) (clean-str description) (clean-str phone) url image]]
     (zipmap [:id :price :address :title :description :phone :url :image] result)))
 
-(defn get-zoopla-listings []
-  (->> (get-dom) 
+(defn get-zoopla-listings [url]
+  (->> url
+       (get-dom)
        extract-results 
        (map relevant-infos)))
 
 (comment 
-  (get-zoopla-listings))
+  (get-zoopla-listings "http://www.zoopla.co.uk/to-rent/property/london/islington/?beds_min=1&include_shared_accommodation=false&price_frequency=per_month&price_max=1750&q=Islington%2C%20London&radius=3&search_source=refine&page_size=25&pn=1&view_type=list"))

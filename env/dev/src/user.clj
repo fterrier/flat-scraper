@@ -6,7 +6,7 @@
 
 (def config 
   {:telegram {:key "273446564:AAFGqT1WNpc9ZgRZK5gDaQp8CF4Tz0W3fro"
-              :host "970b119a.ngrok.io"}})
+              :host "32a25427.ngrok.io"}})
 
 (defn go []
   (-> (mount/swap {#'app.config/config config})

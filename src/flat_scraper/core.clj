@@ -1,8 +1,9 @@
 (ns flat-scraper.core)
 
 
-
-;; (defn -main
-;;   []
-;;   (let [titles (extract-titles (get-dom))]
-;;     (println titles)))
+(defn retrieve-listings 
+  "Retrieves relevant listings for the url and client, taking into
+  account what was already sent back to the client and any filters"
+  [db providers url client]
+  ;; TODO next
+  )
